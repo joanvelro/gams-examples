@@ -1,0 +1,674 @@
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/17/21 21:22:04 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+      -- Scheduling
+   4   
+   5   
+   6   
+   7  Scalar
+   8      qmax_s          'Capacity supply tank'       /500/
+   9      qs0                 'initial stock' /6000/
+  10      qr              'residual' /1000/
+  11      qmax_c          'capacity blending tank'       /10000/;
+  12   
+  13  Set
+  14      T             'Time periods'                      / T0*T7/
+  15      omega_o       'all tanks '                        / O1*O4/
+  16      omega_s       'tanks supply '                     / O1*O2/
+  17      omega_b       'altanks blending '                 / O3*O4/;
+  18   
+  19  ALIAS (omega_o, omega_op) ;
+  20   
+  21  Parameter
+  22      demand(T)    'demand'  /T0 0, T1 1000, T2 1000, T3 1000, T4 1000, T5 1000, T6 1000, T7 1000/
+  23      price(T)    'demand'  /T0 450, T1 500, T2 600, T3 700, T4 500, T5 450, T6 700, T7 450/;
+  24   
+  25  Positive Variable
+  26      dummy_var(T)   'variable dummy'
+  27      qc(T)                            'quantity tu purchase'
+  28      qs(T)                     'stock final product'
+  29      stock(T)
+  30      qb(T);
+  31  *x(T, omega_o, omega_op)          'quantity that flows';
+  32   
+  33  Variable
+  34   
+  35      z 'dummy objective' ;
+  36   
+  37  Binary Variable
+  38      fb(T)         'Blending flag'
+  39      fc(T)           ''
+  40      fs(T)         'Supply flag';
+  41   
+  42   
+  43   
+  44  Equations
+  45      dummy    'dummy equation for the objective function'
+  46      supply(T)
+  47      blending(T)
+  48  * stock_eq(T)
+  49  limit_blending(T)
+  50      purchase(T) 'purchase of components' ;
+  51   
+  52  dummy..                      z =e= sum(T, fc(T)*qc(T)*price(T));
+  53  blending(T)..                qs(T) =g= demand(T);
+  54  supply(T)..                  qs(T)=e=qb(T)*fb(T) + stock(T);
+  55  purchase(T)..                (1-fb(T))*qb(T+1) =e= qc(T)*fc(T);
+  56  *stock_eq(T)..                stock(T+1) =e= stock(T) + qs(T) - demand(T);
+  57  limit_blending(T)..            qb(T)*fb(T)=l= 80000;
+  58   
+  59   
+  60   
+  61  qs.fx('T0')=qs0;
+  62  fb.l(T)=1;
+  63  fc.l(T)=1;
+  64   
+  65  Model scheduling / all /;
+  66   
+  67  *option minlp=LOCALSOLVER;
+  68   
+  69  OPTION SYSOUT=ON;
+  70   
+  71   
+  72  solve scheduling using minlp minimizing z;
+
+
+COMPILATION TIME     =        0.001 SECONDS      3 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/17/21 21:22:04 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE scheduling Using MINLP From line 72
+
+
+---- dummy  =E=  dummy equation for the objective function
+
+dummy..  - (450)*qc(T0) - (500)*qc(T1) - (600)*qc(T2) - (700)*qc(T3) - (500)*qc(T4) - (450)*qc(T5) - (700)*qc(T6) - (450)*qc(T7) + z + (0)*fc(T0) + (0)*fc(T1) + (0)*fc(T2) + (0)*fc(T3) + (0)*fc(T4) + (0)*fc(T5) + (0)*fc(T6) + (0)*fc(T7) =E= 0 ; (LHS = 0)
+     
+
+---- supply  =E=  
+
+supply(T0)..  qs(T0) - stock(T0) - (1)*qb(T0) + (0)*fb(T0) =E= 0 ; (LHS = 6000, INFES = 6000 ****)
+     
+supply(T1)..  qs(T1) - stock(T1) - (1)*qb(T1) + (0)*fb(T1) =E= 0 ; (LHS = 0)
+     
+supply(T2)..  qs(T2) - stock(T2) - (1)*qb(T2) + (0)*fb(T2) =E= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- blending  =G=  
+
+blending(T0)..  qs(T0) =G= 0 ; (LHS = 6000)
+     
+blending(T1)..  qs(T1) =G= 1000 ; (LHS = 0, INFES = 1000 ****)
+     
+blending(T2)..  qs(T2) =G= 1000 ; (LHS = 0, INFES = 1000 ****)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- limit_blending  =L=  
+
+limit_blending(T0)..  (1)*qb(T0) + (0)*fb(T0) =L= 80000 ; (LHS = 0)
+     
+limit_blending(T1)..  (1)*qb(T1) + (0)*fb(T1) =L= 80000 ; (LHS = 0)
+     
+limit_blending(T2)..  (1)*qb(T2) + (0)*fb(T2) =L= 80000 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+
+---- purchase  =E=  purchase of components
+
+purchase(T0)..  - (1)*qc(T0) + (0)*qb(T1) + (0)*fb(T0) + (0)*fc(T0) =E= 0 ; (LHS = 0)
+     
+purchase(T1)..  - (1)*qc(T1) + (0)*qb(T2) + (0)*fb(T1) + (0)*fc(T1) =E= 0 ; (LHS = 0)
+     
+purchase(T2)..  - (1)*qc(T2) + (0)*qb(T3) + (0)*fb(T2) + (0)*fc(T2) =E= 0 ; (LHS = 0)
+     
+REMAINING 5 ENTRIES SKIPPED
+
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/17/21 21:22:04 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE scheduling Using MINLP From line 72
+
+
+---- qc  quantity tu purchase
+
+qc(T0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-450)      dummy
+      (-1)      purchase(T0)
+
+qc(T1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-500)      dummy
+      (-1)      purchase(T1)
+
+qc(T2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+    (-600)      dummy
+      (-1)      purchase(T2)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- qs  stock final product
+
+qs(T0)
+                (.LO, .L, .UP, .M = 6000, 6000, 6000, 0)
+        1       supply(T0)
+        1       blending(T0)
+
+qs(T1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       supply(T1)
+        1       blending(T1)
+
+qs(T2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       supply(T2)
+        1       blending(T2)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- stock  
+
+stock(T0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       supply(T0)
+
+stock(T1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       supply(T1)
+
+stock(T2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+       -1       supply(T2)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- qb  
+
+qb(T0)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      (-1)      supply(T0)
+       (1)      limit_blending(T0)
+
+qb(T1)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      (-1)      supply(T1)
+       (1)      limit_blending(T1)
+       (0)      purchase(T0)
+
+qb(T2)
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+      (-1)      supply(T2)
+       (1)      limit_blending(T2)
+       (0)      purchase(T1)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- z  dummy objective
+
+z
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       dummy
+
+
+---- fb  Blending flag
+
+fb(T0)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+       (0)      supply(T0)
+       (0)      limit_blending(T0)
+       (0)      purchase(T0)
+
+fb(T1)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+       (0)      supply(T1)
+       (0)      limit_blending(T1)
+       (0)      purchase(T1)
+
+fb(T2)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+       (0)      supply(T2)
+       (0)      limit_blending(T2)
+       (0)      purchase(T2)
+
+REMAINING 5 ENTRIES SKIPPED
+
+---- fc  
+
+fc(T0)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+       (0)      dummy
+       (0)      purchase(T0)
+
+fc(T1)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+       (0)      dummy
+       (0)      purchase(T1)
+
+fc(T2)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+       (0)      dummy
+       (0)      purchase(T2)
+
+REMAINING 5 ENTRIES SKIPPED
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/17/21 21:22:04 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE scheduling Using MINLP From line 72
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           5     SINGLE EQUATIONS           33
+BLOCKS OF VARIABLES           7     SINGLE VARIABLES           49
+NON ZERO ELEMENTS           103     NON LINEAR N-Z             78
+CODE LENGTH                 161     CONSTANT POOL              20     DISCRETE VARIABLES         16
+
+
+GENERATION TIME      =        0.006 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/17/21 21:22:04 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE scheduling Using MINLP From line 72
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   scheduling          OBJECTIVE  z
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  DICOPT              FROM LINE  72
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      2 Locally Optimal           
+**** OBJECTIVE VALUE                0.0000
+
+ RESOURCE USAGE, LIMIT          0.007 10000000000.000
+ ITERATION COUNT, LIMIT         3    2147483647
+ EVALUATION ERRORS              0             0
+-------------------------------------------------------------------------------
+Dicopt 2         35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+*** This solver runs with a demo license. No commercial use.
+--- *** This solver runs with a demo license. No commercial use.
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The model has 49 variables and 33 constraints
+    with 103 Jacobian elements, 78 of which are nonlinear.
+    The Hessian of the Lagrangian has 0 elements on the diagonal,
+    23 elements below the diagonal, and 32 nonlinear variables.
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483647 to 1000000000.
+ 
+ ** Warning **  The number of nonlinear derivatives equal to zero
+                in the initial point is large (= 44 percent).
+                A better initial point will probably help the
+                optimization.
+ 
+ 
+                   Pre-triangular equations:   1
+                   Post-triangular equations:  1
+                   Definitional equations:     7
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.002 seconds
+   of which: Function evaluations             0.000 =  0.0%
+             1st Derivative evaluations       0.000 =  0.0%
+ 
+--- DICOPT: Relaxed NLP gives integer solution
+
+      The Relaxed NLP gave a solution where all the integer
+      variables have integral values. There is no need to
+      to continue the search.
+
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU dummy               .              .              .             1.0000      
+
+  dummy  dummy equation for the objective function
+
+---- EQU supply  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .              .              .             EPS         
+T1          .              .              .             EPS         
+T2          .              .              .             EPS         
+T3          .              .              .             EPS         
+T4          .              .              .             EPS         
+T5          .              .              .             EPS         
+T6          .              .              .             EPS         
+T7          .              .              .             EPS         
+
+---- EQU blending  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .          6000.0000        +INF             .          
+T1      1000.0000      1000.0000        +INF            EPS         
+T2      1000.0000      1000.0000        +INF             .          
+T3      1000.0000      1000.0000        +INF             .          
+T4      1000.0000      1000.0000        +INF             .          
+T5      1000.0000      1000.0000        +INF             .          
+T6      1000.0000      1000.0000        +INF             .          
+T7      1000.0000      1000.0000        +INF             .          
+
+---- EQU limit_blending  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0        -INF         3000.0000     80000.0000          .          
+T1        -INF             .         80000.0000          .          
+T2        -INF             .         80000.0000          .          
+T3        -INF             .         80000.0000          .          
+T4        -INF             .         80000.0000          .          
+T5        -INF             .         80000.0000          .          
+T6        -INF             .         80000.0000          .          
+T7        -INF             .         80000.0000          .          
+
+---- EQU purchase  purchase of components
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .              .              .          -450.0000      
+T1          .              .              .          -500.0000      
+T2          .              .              .          -600.0000      
+T3          .              .              .          -700.0000      
+T4          .              .              .          -500.0000      
+T5          .              .              .          -450.0000      
+T6          .              .              .          -700.0000      
+T7          .              .              .          -450.0000      
+
+---- VAR qc  quantity tu purchase
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .              .            +INF             .          
+T1          .              .            +INF             .          
+T2          .              .            +INF             .          
+T3          .              .            +INF             .          
+T4          .              .            +INF             .          
+T5          .              .            +INF             .          
+T6          .              .            +INF             .          
+T7          .              .            +INF             .          
+
+---- VAR qs  stock final product
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0      6000.0000      6000.0000      6000.0000         EPS         
+T1          .          1000.0000        +INF             .          
+T2          .          1000.0000        +INF             .          
+T3          .          1000.0000        +INF             .          
+T4          .          1000.0000        +INF             .          
+T5          .          1000.0000        +INF             .          
+T6          .          1000.0000        +INF             .          
+T7          .          1000.0000        +INF             .          
+
+---- VAR stock  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .          3000.0000        +INF             .          
+T1          .          1000.0000        +INF             .          
+T2          .          1000.0000        +INF            EPS         
+T3          .          1000.0000        +INF            EPS         
+T4          .          1000.0000        +INF            EPS         
+T5          .          1000.0000        +INF            EPS         
+T6          .          1000.0000        +INF            EPS         
+T7          .          1000.0000        +INF            EPS         
+
+---- VAR qb  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .          3000.0000        +INF            EPS         
+T1          .              .            +INF            EPS         
+T2          .              .            +INF            EPS         
+T3          .              .            +INF            EPS         
+T4          .              .            +INF            EPS         
+T5          .              .            +INF            EPS         
+T6          .              .            +INF            EPS         
+T7          .              .            +INF            EPS         
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR z                 -INF             .            +INF             .          
+
+  z  dummy objective
+
+---- VAR fb  Blending flag
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .             1.0000         1.0000         EPS         
+T1          .             1.0000         1.0000         EPS         
+T2          .             1.0000         1.0000         EPS         
+T3          .             1.0000         1.0000         EPS         
+T4          .             1.0000         1.0000         EPS         
+T5          .             1.0000         1.0000         EPS         
+T6          .             1.0000         1.0000         EPS         
+T7          .             1.0000         1.0000         EPS         
+
+---- VAR fc  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+T0          .             1.0000         1.0000         EPS         
+T1          .             1.0000         1.0000         EPS         
+T2          .             1.0000         1.0000         EPS         
+T3          .             1.0000         1.0000         EPS         
+T4          .             1.0000         1.0000         EPS         
+T5          .             1.0000         1.0000         EPS         
+T6          .             1.0000         1.0000         EPS         
+T7          .             1.0000         1.0000         EPS         
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/17/21 21:22:04 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE scheduling Using MINLP From line 72
+
+
+**** SOLVER STATUS FILE LISTED BELOW
+=1
+-------------------------------------------------------------------------------
+=CDicopt 2         35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+-------------------------------------------------------------------------------
+by Aldo Vecchietti, Director del Instituto INGAR,
+   CONICET, UTN, Santa Fe, Argentina
+by Ignacio E. Grossmann, Chemical Engineering Faculty,
+   Carnegie Mellon University, Pittsburgh, PA, USA
+-------------------------------------------------------------------------------
+=C*** This solver runs with a demo license. No commercial use.
+=1
+=2
+=0CONOPT 3         35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+=1
+--- *** This solver runs with a demo license. No commercial use.
+=2
+=1
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+=2
+    1  INPUT                                                                  (DEFAULT)
+    2  BRANCH * MAJERR MINERR JACERR                                          (DEFAULT)
+    3  OPTIMIZE                                                               (DEFAULT)
+    4  BRANCH * * * * * * MAJERR                                              (DEFAULT)
+    5  OUTPUT                                                                 (DEFAULT)
+    6  EXIT                                                                   (DEFAULT)
+    7  MAJERR MESSAGE MAJOR ERROR - TERMINATE                                 (DEFAULT)
+    8  EXIT                                                                   (DEFAULT)
+    9  MINERR MESSAGE MINOR ERROR - TERMINATE                                 (DEFAULT)
+   10  EXIT                                                                   (DEFAULT)
+   11  JACERR MESSAGE FUNCTION OR DERIVATIVE ERROR                            (DEFAULT)
+   12  OUTPUT                                                                 (DEFAULT)
+   13  EXIT                                                                   (DEFAULT)
+ 
+  ***  Line    1  INPUT
+ 
+  ***  Line    0  SET       LSAZRW   = TRUE
+ 
+  ***  Line    0  SET       LFEERR   =           0
+ 
+  ***  Line    0  SET       LFITER   =  2147483647
+ 
+  ***  Line    0  SET       RVTIME   =     1.0000000000E+10
+=1
+ 
+    The model has 49 variables and 33 constraints
+    with 103 Jacobian elements, 78 of which are nonlinear.
+    The Hessian of the Lagrangian has 0 elements on the diagonal,
+    23 elements below the diagonal, and 32 nonlinear variables.
+=2
+=1
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483647 to 1000000000.
+=2
+ 
+Search for a first feasible solution
+ 
+ 
+   Iter Phase Ninf   Infeasibility   RGmax    NSB   Step InItr MX OK
+      0   0        1.3000000000E+04 (Input point)
+=1
+ 
+ ** Warning **  The number of nonlinear derivatives equal to zero
+                in the initial point is large (= 44 percent).
+                A better initial point will probably help the
+                optimization.
+ 
+=2
+=1
+ 
+                   Pre-triangular equations:   1
+                   Post-triangular equations:  1
+                   Definitional equations:     7
+ 
+=2
+      1   0        1.3000000000E+04 (After pre-processing)
+      2   0        1.5136718750E+01 (After scaling)
+ 
+ ** Feasible solution. Value of objective =    0.00000000000
+ 
+Search for an optimal solution.
+ 
+ 
+   Iter Phase Ninf     Objective     RGmax    NSB   Step InItr MX OK
+      3   3        0.0000000000E+00 0.0E+00     9
+=1
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+=2
+ 
+  ***  Line    4  BRANCH with Lbranch =  1
+ 
+  ***  Line    5  OUTPUT
+ 
+  ***  Line    6  EXIT
+=1
+ 
+ CONOPT time Total                            0.002 seconds
+   of which: Function evaluations             0.000 =  0.0%
+             1st Derivative evaluations       0.000 =  0.0%
+ 
+=2
+ 
+ Work length =      23089 double words  =    0.18 Mbytes
+    Estimate =      23089 double words  =    0.18 Mbytes
+    Max used =       5820 double words  =    0.04 Mbytes
+ 
+ Timing for Function Evaluations:
+ 
+ Statistics for FDEval-Fnc Calls:        94. Time:      0.000 T/C:    0.0000E+00
+ Statistics for FDEval-Drv Calls:       125. Time:      0.000 T/C:    0.0000E+00
+ Statistics for 2DDirLag   Calls:         0. Time:      0.000 T/C:    0.0000E+00
+ Statistics for 2DLagr     Calls:         0. Time:      0.000 T/C:    0.0000E+00
+ 
+=1
+=C--- DICOPT: Relaxed NLP gives integer solution
+=C
+=C      The Relaxed NLP gave a solution where all the integer
+=C      variables have integral values. There is no need to
+=C      to continue the search.
+=C
+=2
+ DICOPT Log File
+ ------------------------------------------------------------------
+ Major Major     Objective    CPU time  Itera- Evaluation Solver
+ Step  Iter       Function     (Sec)    tions   Errors
+  NLP    1         0.00000<     0.01        3      0      conopt
+ ------------------------------------------------------------------
+   Total solver times :  NLP =     0.01   MIP =     0.00
+ ------------------------------------------------------------------
+=4
+=2
+ -------------------------------------------------------------
+   Values of discrete variables at the end of major iterations
+ -------------------------------------------------------------
+
+  Total no. of variables         :    49
+  Total no. of binary variables  :    16
+  Total no. of integer variables :     0
+
+  Seq. no. of binary variables in the list of variables
+
+
+       34       35       36       37       38
+       39       40       41       42       43
+       44       45       46       47       48
+       49
+
+  Values of binary variables : Iteration no.: 1
+
+
+   1.000   1.000   1.000   1.000   1.000
+   1.000   1.000   1.000   1.000   1.000
+   1.000   1.000   1.000   1.000   1.000
+   1.000
+
+**** SOLVER STATUS FILE LISTED ABOVE
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/17/21 21:22:04 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE scheduling Using MINLP From line 72
+
+
+EXECUTION TIME       =        0.042 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+
+
+USER: GAMS Demo license for Jose Angel Rodriguez     G210527|0002CO-GEN
+      UC3M, Spain                                              DL042150
+
+
+**** FILE SUMMARY
+
+Input      /Users/joseangelvelasco/Documents/GAMS/Studio/blending/scheduling.gms
+Output     /Users/joseangelvelasco/Documents/GAMS/Studio/blending/scheduling.lst

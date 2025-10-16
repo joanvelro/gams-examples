@@ -1,0 +1,36 @@
+B 3 C o m p i l a t i o n
+B 234 Equation Listing    SOLVE portfolioMINLP Using MINLP From line 148
+D 237 DEFcT
+D 242 DEFcF
+D 247 DEFcI
+D 252 TR
+D 259 SPP
+D 270 RVLB
+D 277 RVUB
+B 285 Column Listing      SOLVE portfolioMINLP Using MINLP From line 148
+E 288 cTotal
+E 295 cInvest
+E 303 cFixed
+E 311 f
+E 330 vR
+E 367 pS
+E 383 bvr
+E 400 nB
+B 420 Model Statistics    SOLVE portfolioMINLP Using MINLP From line 148
+B 434 Solution Report     SOLVE portfolioMINLP Using MINLP From line 148
+F 459 DEFcT
+F 460 DEFcF
+F 461 DEFcI
+F 467 TR
+F 474 SPP
+F 489 RVLB
+F 496 RVUB
+G 505 cTotal
+G 506 cInvest
+G 507 cFixed
+G 513 f
+G 538 vR
+G 545 pS
+G 560 bvr
+G 567 nB
+B 600 E x e c u t i o n

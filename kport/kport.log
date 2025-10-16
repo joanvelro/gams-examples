@@ -1,0 +1,302 @@
+
+--- Job kport.gms Start 06/07/21 17:56:51 35.1.0 r82a9585 DEX-DEG x86 64bit/Mac OS X
+--- Applying:
+    /Library/Frameworks/GAMS.framework/Versions/35/Resources/gmsprmun.txt
+--- GAMS Parameters defined
+    Input /Users/joseangelvelasco/Documents/GAMS/Studio/kport/kport.gms
+    PageSize 0
+    ScrDir /Users/joseangelvelasco/Documents/GAMS/Studio/kport/225a/
+    SysDir /Library/Frameworks/GAMS.framework/Versions/35/Resources/
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Demo license for Jose Angel Rodriguez     G210527|0002CO-GEN
+          UC3M, Spain                                              DL042150
+          /Library/Frameworks/GAMS.framework/Versions/35/Resources/gamslice.txt
+          100328928@alumnos.uc3m.es, Jose Angel Rodriguez                  
+          Demo license for demonstration and instructional purposes only
+GAMS 35.1.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- kport.gms(228) 3 Mb
+--- Starting execution: elapsed 0:00:00.005
+--- kport.gms(146) 4 Mb
+--- Generating MINLP model portfolioMINLP
+--- kport.gms(148) 6 Mb
+---   19 rows  57 columns  109 non-zeroes
+---   121 nl-code  62 nl-non-zeroes
+---   22 discrete-columns
+--- kport.gms(148) 4 Mb
+--- Executing LOCALSOLVER (Solvelink=2): elapsed 0:00:00.011
+
+LocalSolver      35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+*** This solver runs with a demo license. No commercial use.
+
+LocalSolver 10.0 (MacOS64, build 20210330)
+Copyright (C) 2020 LocalSolver. All rights reserved.
+See LocalSolver Terms and Conditions for details.
+Searching for equations that define variables... found 12
+Warning: Decreased the upper bound for some continuous variables to 1e10.
+Preprocess model 0%
+Preprocess model 1%
+Preprocess model 2%
+Preprocess model 3%
+Preprocess model 4%
+Preprocess model 6%
+Preprocess model 7%
+Preprocess model 8%
+Preprocess model 9%
+Preprocess model 10%
+Preprocess model 11%
+Preprocess model 12%
+Preprocess model 13%
+Preprocess model 14%
+Preprocess model 16%
+Preprocess model 17%
+Preprocess model 17%
+Preprocess model 33%
+Preprocess model 38%
+Preprocess model 42%
+Preprocess model 46%
+Preprocess model 50%
+Preprocess model 50%
+Preprocess model 52%
+Preprocess model 54%
+Preprocess model 56%
+Preprocess model 58%
+Preprocess model 60%
+Preprocess model 63%
+Preprocess model 65%
+Preprocess model 67%
+Preprocess model 67%
+Preprocess model 83%
+Preprocess model 86%
+Preprocess model 88%
+Preprocess model 90%
+Preprocess model 93%
+Preprocess model 95%
+Preprocess model 98%
+Preprocess model 100%
+Preprocess model 100%
+Preprocess model 100%
+Initialize solver 0%
+Initialize solver 20%
+Initialize solver 40%
+Initialize solver 60%
+Initialize solver 80%
+Initialize solver 100%
+Initialize solver 100%
+Initialize solver 100%
+Push initial solution 0%
+Push initial solution 50%
+Push initial solution 100%
+Push initial solution 100%
+
+Model:  expressions = 211, decisions = 44, constraints = 26, objectives = 1
+Param:  no time limit, no iteration limit, nb threads = 1
+        seed = 0, annealing level = 1, iterations between ticks = 10000
+
+Phases:
+  Phase 0: no time limit, no iteration limit, optimized objective = 0
+
+[objective direction ]:     minimize
+
+
+Phase 0:
+[  0 sec,       0 itr]: No feasible solution found (infeas = 12)
+[  1 sec,  123337 itr]:      30.7113
+[ optimality gap     ]:        9.08%
+[  2 sec,  260803 itr]:      30.7113
+[  3 sec,  437805 itr]:      30.1528
+[  4 sec,  621664 itr]:       30.131
+[  5 sec,  793044 itr]:      29.8893
+[  6 sec,  960842 itr]:      29.8584
+[  7 sec, 1127130 itr]:      29.8584
+[  8 sec, 1300197 itr]:      29.8584
+[  9 sec, 1470851 itr]:      29.8584
+[ 10 sec, 1644843 itr]:      29.6739
+[ 11 sec, 1812709 itr]:      29.6739
+[ optimality gap     ]:        3.56%
+[ 12 sec, 1975013 itr]:      29.6739
+[ 13 sec, 2140605 itr]:      29.6739
+[ 14 sec, 2311897 itr]:      29.6739
+[ 15 sec, 2477956 itr]:      29.6556
+[ 16 sec, 2645107 itr]:      29.5622
+[ 17 sec, 2812185 itr]:      29.5622
+[ 18 sec, 2940000 itr]:      29.5622
+[ 19 sec, 3090435 itr]:      29.5622
+[ 20 sec, 3228731 itr]:      29.5622
+[ 21 sec, 3380026 itr]:      29.5622
+[ optimality gap     ]:        2.62%
+[ 22 sec, 3536684 itr]:      29.5622
+[ 23 sec, 3695897 itr]:      29.5622
+[ 24 sec, 3866613 itr]:      29.5622
+[ 25 sec, 4030171 itr]:      29.4952
+[ 26 sec, 4186934 itr]:      29.4508
+[ 27 sec, 4343329 itr]:      29.4508
+[ 28 sec, 4510955 itr]:      29.4508
+[ 29 sec, 4670267 itr]:      29.4508
+[ 30 sec, 4836776 itr]:      29.4508
+[ 31 sec, 4990000 itr]:      29.4508
+[ optimality gap     ]:        1.96%
+[ 32 sec, 5137203 itr]:      29.4508
+[ 33 sec, 5304551 itr]:      29.4508
+[ 34 sec, 5463310 itr]:      29.4508
+[ 35 sec, 5621162 itr]:      29.3625
+[ 36 sec, 5776123 itr]:      29.3625
+[ 37 sec, 5934527 itr]:      29.3625
+[ 38 sec, 6098113 itr]:      29.3625
+[ 39 sec, 6260846 itr]:      29.3625
+[ 40 sec, 6421866 itr]:      29.3625
+[ 41 sec, 6588845 itr]:      29.3625
+[ optimality gap     ]:        1.49%
+[ 42 sec, 6742573 itr]:      29.3625
+[ 43 sec, 6892229 itr]:      29.3625
+[ 44 sec, 7030000 itr]:      29.3625
+[ 45 sec, 7180343 itr]:      29.3625
+[ 46 sec, 7320038 itr]:      29.3625
+[ 47 sec, 7420139 itr]:      29.3625
+[ 48 sec, 7526342 itr]:      29.3625
+[ 49 sec, 7665825 itr]:      29.3625
+[ 50 sec, 7831454 itr]:      29.3625
+[ 51 sec, 7966442 itr]:      29.3625
+[ optimality gap     ]:        1.35%
+[ 52 sec, 8105745 itr]:      29.3625
+[ 53 sec, 8248135 itr]:      29.3625
+[ 54 sec, 8399219 itr]:      29.3625
+[ 55 sec, 8552078 itr]:      29.3625
+[ 56 sec, 8702859 itr]:      29.3625
+[ 57 sec, 8870100 itr]:      29.3625
+[ 58 sec, 9031063 itr]:      29.3625
+[ 59 sec, 9199775 itr]:      29.3625
+[ 60 sec, 9346564 itr]:      29.3625
+[ 61 sec, 9500455 itr]:      29.3625
+[ optimality gap     ]:        1.24%
+[ 62 sec, 9661471 itr]:      29.3625
+[ 63 sec, 9822419 itr]:      29.3625
+[ 64 sec, 9980028 itr]:      29.3625
+[ 65 sec, 10132264 itr]:      29.3625
+[ 66 sec, 10293840 itr]:      29.3625
+[ 67 sec, 10426791 itr]:      29.3625
+[ 68 sec, 10578696 itr]:      29.3625
+[ 69 sec, 10734104 itr]:      29.3625
+[ 70 sec, 10879812 itr]:      29.3625
+[ 71 sec, 11039682 itr]:      29.3625
+[ optimality gap      ]:        1.14%
+[ 72 sec, 11160990 itr]:      29.3625
+[ 73 sec, 11286024 itr]:      29.3625
+[ 74 sec, 11414870 itr]:      29.3625
+[ 75 sec, 11556826 itr]:      29.3625
+[ 76 sec, 11635169 itr]:      29.3625
+[ 77 sec, 11762605 itr]:      29.3625
+[ 78 sec, 11922042 itr]:      29.3625
+[ 79 sec, 12052738 itr]:      29.3625
+[ 80 sec, 12188729 itr]:      29.3625
+[ 81 sec, 12323106 itr]:      29.3625
+[ optimality gap      ]:        1.07%
+[ 82 sec, 12466823 itr]:      29.3625
+[ 83 sec, 12606589 itr]:      29.3625
+[ 84 sec, 12744931 itr]:      29.3625
+[ 85 sec, 12882504 itr]:      29.3625
+[ 86 sec, 12990000 itr]:      29.3625
+[ 87 sec, 13127499 itr]:      29.3625
+[ 88 sec, 13239689 itr]:      29.3625
+[ 89 sec, 13388277 itr]:      29.3625
+[ 90 sec, 13538261 itr]:      29.3625
+[ 91 sec, 13689511 itr]:      29.3625
+[ optimality gap      ]:        1.00%
+[ 92 sec, 13837806 itr]:      29.3625
+[ 93 sec, 13993378 itr]:      29.3625
+[ 94 sec, 14147985 itr]:      29.3625
+[ 95 sec, 14303854 itr]:      29.3625
+[ 96 sec, 14457845 itr]:      29.3625
+[ 97 sec, 14603007 itr]:      29.3625
+[ 98 sec, 14755398 itr]:      29.3625
+[ 99 sec, 14900507 itr]:      29.3625
+[100 sec, 15042186 itr]:      29.3625
+[101 sec, 15195496 itr]:      29.3625
+[ optimality gap      ]:        0.94%
+[102 sec, 15345099 itr]:      29.3625
+[103 sec, 15494346 itr]:      29.3625
+[104 sec, 15640000 itr]:      29.3625
+[105 sec, 15793916 itr]:      29.3625
+[106 sec, 15944382 itr]:      29.3625
+[107 sec, 16052578 itr]:      29.3625
+[108 sec, 16141803 itr]:      29.3508
+[109 sec, 16250133 itr]:      29.3508
+[110 sec, 16314047 itr]:      29.3508
+[111 sec, 16447618 itr]:      29.3508
+[ optimality gap      ]:        0.86%
+[112 sec, 16606736 itr]:      29.3508
+[113 sec, 16768163 itr]:      29.3508
+[114 sec, 16919252 itr]:      29.3508
+[115 sec, 17078126 itr]:      29.3508
+[116 sec, 17235371 itr]:      29.3508
+[117 sec, 17379090 itr]:      29.3508
+[118 sec, 17524148 itr]:      29.3508
+[119 sec, 17669684 itr]:      29.3508
+[120 sec, 17814028 itr]:      29.3508
+[121 sec, 17974608 itr]:      29.3508
+[ optimality gap      ]:        0.81%
+[122 sec, 18127721 itr]:      29.3508
+[123 sec, 18220614 itr]:      29.3508
+[124 sec, 18338320 itr]:      29.3508
+[125 sec, 18493428 itr]:      29.3508
+[126 sec, 18645952 itr]:      29.3508
+[127 sec, 18792791 itr]:      29.3508
+[128 sec, 18945856 itr]:      29.3508
+[129 sec, 19090679 itr]:      29.3508
+[130 sec, 19234699 itr]:      29.3508
+[131 sec, 19384684 itr]:      29.3508
+[ optimality gap      ]:        0.76%
+[132 sec, 19530658 itr]:      29.3508
+[133 sec, 19686491 itr]:      29.3508
+[134 sec, 19816784 itr]:      29.3508
+[135 sec, 19969366 itr]:      29.3508
+[136 sec, 20126552 itr]:      29.3508
+[137 sec, 20287714 itr]:      29.3508
+[138 sec, 20450211 itr]:      29.3508
+[139 sec, 20604510 itr]:      29.3508
+[140 sec, 20762799 itr]:      29.3508
+[141 sec, 20918868 itr]:      29.3508
+[ optimality gap      ]:        0.72%
+[142 sec, 21082770 itr]:      29.3508
+[143 sec, 21234336 itr]:      29.3508
+[144 sec, 21397976 itr]:      29.3508
+[145 sec, 21561316 itr]:      29.3508
+[146 sec, 21723495 itr]:      29.3508
+[147 sec, 21862961 itr]:      29.3508
+[148 sec, 22009121 itr]:      29.3508
+[149 sec, 22106205 itr]:      29.3508
+[150 sec, 22246201 itr]:      29.3508
+[151 sec, 22370000 itr]:      29.3508
+[ optimality gap      ]:        0.67%
+[152 sec, 22512950 itr]:      29.3508
+[153 sec, 22667258 itr]:      29.3508
+[154 sec, 22825048 itr]:      29.3508
+[155 sec, 22988458 itr]:      29.3508
+[156 sec, 23147137 itr]:      29.3508
+[157 sec, 23307967 itr]:      29.3508
+[158 sec, 23459630 itr]:      29.3508
+[158 sec, 23510000 itr]:      29.3508
+[ optimality gap      ]:        0.62%
+
+23510000 iterations performed in 158 seconds
+
+Feasible solution: 
+  obj    =      29.3508
+  gap    =        0.62%
+  bounds =      29.1677
+Stopped due to user interrupt (Ctrl+C event).
+Feasible solution found.
+Objective Value:  2.93508089e+01
+
+--- Reading solution for model portfolioMINLP
+***
+*** Solver did not provide marginals for model portfolioMINLP
+***
+--- Executing after solve: elapsed 0:02:38.481
+--- kport.gms(226) 4 Mb
+*** Status: Normal completion
+--- Job kport.gms Stop 06/07/21 17:59:30 elapsed 0:02:38.482

@@ -1,0 +1,41 @@
+B 3 C o m p i l a t i o n
+B 106 Equation Listing    SOLVE blending Using MINLP From line 91
+D 109 total_cost
+D 114 demanda
+D 119 Q_min_comp
+D 128 Q_max_comp
+D 137 sulfuro_final
+D 142 densidad_final
+D 147 total_quantity
+D 152 limite_sulfuro
+D 157 limite_densidad
+D 162 limite_stock
+B 172 Column Listing      SOLVE blending Using MINLP From line 91
+E 175 Qc
+E 205 Qs
+E 232 QT
+E 242 densidad
+E 250 sulfuro
+E 258 yc
+E 276 ys
+E 291 CT
+B 299 Model Statistics    SOLVE blending Using MINLP From line 91
+B 313 Solution Report     SOLVE blending Using MINLP From line 91
+F 338 total_cost
+F 339 demanda
+F 344 Q_min_comp
+F 352 Q_max_comp
+F 362 sulfuro_final
+F 363 densidad_final
+F 364 total_quantity
+F 365 limite_sulfuro
+F 366 limite_densidad
+F 368 limite_stock
+G 376 Qc
+G 384 Qs
+G 394 QT
+G 395 densidad
+G 396 sulfuro
+G 402 yc
+G 410 ys
+G 420 CT

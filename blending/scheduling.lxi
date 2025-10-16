@@ -1,0 +1,29 @@
+B 3 C o m p i l a t i o n
+B 81 Equation Listing    SOLVE scheduling Using MINLP From line 72
+D 84 dummy
+D 89 supply
+D 100 blending
+D 111 limit_blending
+D 122 purchase
+B 134 Column Listing      SOLVE scheduling Using MINLP From line 72
+E 137 qc
+E 156 qs
+E 175 stock
+E 191 qb
+E 212 z
+E 219 fb
+E 241 fc
+B 261 Model Statistics    SOLVE scheduling Using MINLP From line 72
+B 275 Solution Report     SOLVE scheduling Using MINLP From line 72
+F 344 dummy
+F 348 supply
+F 361 blending
+F 374 limit_blending
+F 387 purchase
+G 400 qc
+G 413 qs
+G 426 stock
+G 439 qb
+G 454 z
+G 458 fb
+G 471 fc

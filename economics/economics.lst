@@ -1,0 +1,267 @@
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:43:09 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+      -- Economics, maximize profit in a market where the selling price depends on the quantity
+   4   
+   5  Scalars
+   6  P0 /3.96032302/
+   7  P1 /-52.14594279/
+   8  P2 /102.33508465/
+   9  C0 /10/
+  10  D /1000/
+  11  price /500/;
+  12   
+  13  Parameters
+  14  K /A1 10, A2 8, A3 12/;
+  15   
+  16  Sets
+  17  A 'agents' /A1*A3/;
+  18   
+  19  Variables
+  20  P 'profit'
+  21  C(A) 'cost'
+  22  *X(A) 'total quantity'
+  23  x(A) 'quantity produced by each agent';
+  24   
+  25  Equations
+  26  *price_equation
+  27  *quantity_equation
+  28  cost_equation(A)
+  29  demand_equation
+  30  profit_equation;
+  31   
+  32  profit_equation..      P =e= sum(A, x(A) * (price - C(A))) / sum(A, x(A));
+  33   
+  34  cost_equation(A)..     C(A)=e=K(A)*log(x(A));
+  35   
+  36   
+  37   
+  38  demand_equation..      sum(A, x(A))=g=D;
+  39   
+  40  *price_equation..        price=e= P0*X**2 + P1*X + P2;
+  41   
+  42  *quantity_equation..    X=e=sum(A, x(A));
+  43   
+  44   
+  45   
+  46   
+  47   
+  48  x.l(A)=1
+  49  *X.l=1
+  50   
+  51  Model economics / all /;
+  52   
+  53  *not feasible solution
+  54  * option minlp=BONMIN;
+  55  *not integer solution
+  56  *option minlp=DICOPT;
+  57   
+  58   
+  59  *option minlp=BARON;
+  60   
+  61  *option minlp=KNITRO;
+  62   
+  63  *option minlp=XPRESS;
+  64   
+  65  *option minlp=SCIP;
+  66   
+  67  *option minlp=SHOT;
+  68   
+  69   
+  70  *OPTION SYSOUT=ON;
+  71   
+  72  solve economics using nlp maximizing P;
+
+
+COMPILATION TIME     =        0.001 SECONDS      3 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:43:09 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE economics Using NLP From line 72
+
+
+---- cost_equation  =E=  
+
+cost_equation(A1)..  C(A1) - (10)*x(A1) =E= 0 ; (LHS = 0)
+     
+cost_equation(A2)..  C(A2) - (8)*x(A2) =E= 0 ; (LHS = 0)
+     
+cost_equation(A3)..  C(A3) - (12)*x(A3) =E= 0 ; (LHS = 0)
+     
+
+---- demand_equation  =G=  
+
+demand_equation..  x(A1) + x(A2) + x(A3) =G= 1000 ; (LHS = 3, INFES = 997 ****)
+     
+
+---- profit_equation  =E=  
+
+profit_equation..  P + (0.333333333333333)*C(A1) + (0.333333333333333)*C(A2) + (0.333333333333333)*C(A3) + (0)*x(A1) + (0)*x(A2) + (0)*x(A3) =E= 0 ; (LHS = -500, INFES = 500 ****)
+     
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:43:09 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE economics Using NLP From line 72
+
+
+---- P  profit
+
+P
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       profit_equation
+
+
+---- C  cost
+
+C(A1)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       cost_equation(A1)
+       (0.3333) profit_equation
+
+C(A2)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       cost_equation(A2)
+       (0.3333) profit_equation
+
+C(A3)
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       cost_equation(A3)
+       (0.3333) profit_equation
+
+
+---- x  quantity produced by each agent
+
+x(A1)
+                (.LO, .L, .UP, .M = -INF, 1, +INF, 0)
+     (-10)      cost_equation(A1)
+        1       demand_equation
+       (0)      profit_equation
+
+x(A2)
+                (.LO, .L, .UP, .M = -INF, 1, +INF, 0)
+      (-8)      cost_equation(A2)
+        1       demand_equation
+       (0)      profit_equation
+
+x(A3)
+                (.LO, .L, .UP, .M = -INF, 1, +INF, 0)
+     (-12)      cost_equation(A3)
+        1       demand_equation
+       (0)      profit_equation
+
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:43:09 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE economics Using NLP From line 72
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           3     SINGLE EQUATIONS            5
+BLOCKS OF VARIABLES           3     SINGLE VARIABLES            7
+NON ZERO ELEMENTS            16     NON LINEAR N-Z              9
+CODE LENGTH                  40     CONSTANT POOL              19
+
+
+GENERATION TIME      =        0.002 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:43:09 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE economics Using NLP From line 72
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   economics           OBJECTIVE  P
+     TYPE    NLP                 DIRECTION  MAXIMIZE
+     SOLVER  CONOPT              FROM LINE  72
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      2 Locally Optimal           
+**** OBJECTIVE VALUE              447.3797
+
+ RESOURCE USAGE, LIMIT          0.009 10000000000.000
+ ITERATION COUNT, LIMIT         9    2147483647
+ EVALUATION ERRORS              0             0
+--- *** This solver runs with a demo license. No commercial use.
+ 
+ 
+    C O N O P T 3   version 3.17K
+    Copyright (C)   ARKI Consulting and Development A/S
+                    Bagsvaerdvej 246 A
+                    DK-2880 Bagsvaerd, Denmark
+ 
+ 
+    The model has 7 variables and 5 constraints
+    with 16 Jacobian elements, 9 of which are nonlinear.
+    The Hessian of the Lagrangian has 3 elements on the diagonal,
+    12 elements below the diagonal, and 6 nonlinear variables.
+ 
+ ** Warning **  The value of LFITER is out of range.
+                LFITER is decreased from 2147483647 to 1000000000.
+ 
+                   Pre-triangular equations:   0
+                   Post-triangular equations:  5
+ 
+ 
+ ** Optimal solution. Reduced gradient less than tolerance.
+ 
+ 
+ CONOPT time Total                            0.003 seconds
+   of which: Function evaluations             0.001 = 33.3%
+             1st Derivative evaluations       0.000 =  0.0%
+             2nd Derivative evaluations       0.000 =  0.0%
+             Directional 2nd Derivative       0.000 =  0.0%
+ 
+
+---- EQU cost_equation  
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+A1          .              .              .            -0.1673      
+A2          .              .              .            -0.7724      
+A3          .              .              .            -0.0603      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- EQU demand_eq~      1000.0000      1000.0000        +INF           -0.0086      
+---- EQU profit_eq~          .              .              .             1.0000      
+
+                           LOWER          LEVEL          UPPER         MARGINAL
+
+---- VAR P                 -INF          447.3797        +INF             .          
+
+  P  profit
+
+---- VAR C  cost
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+A1        -INF           51.1961        +INF             .          
+A2        -INF           53.1961        +INF             .          
+A3        -INF           49.1961        +INF             .          
+
+---- VAR x  quantity produced by each agent
+
+          LOWER          LEVEL          UPPER         MARGINAL
+
+A1        -INF          167.2703        +INF             .          
+A2        -INF          772.4089        +INF            EPS         
+A3        -INF           60.3208        +INF      -3.036732E-9      
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+
+
+EXECUTION TIME       =        0.039 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+
+
+USER: GAMS Demo license for Jose Angel Rodriguez     G210527|0002CO-GEN
+      UC3M, Spain                                              DL042150
+
+
+**** FILE SUMMARY
+
+Input      /Users/joseangelvelasco/Documents/GAMS/Studio/economics/economics.gms
+Output     /Users/joseangelvelasco/Documents/GAMS/Studio/economics/economics.lst

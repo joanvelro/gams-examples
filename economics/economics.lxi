@@ -1,0 +1,17 @@
+B 3 C o m p i l a t i o n
+B 81 Equation Listing    SOLVE economics Using NLP From line 72
+D 84 cost_equation
+D 93 demand_equation
+D 98 profit_equation
+B 104 Column Listing      SOLVE economics Using NLP From line 72
+E 107 P
+E 114 C
+E 132 x
+B 154 Model Statistics    SOLVE economics Using NLP From line 72
+B 168 Solution Report     SOLVE economics Using NLP From line 72
+F 215 cost_equation
+F 225 demand_equation
+F 226 profit_equation
+G 230 P
+G 234 C
+G 242 x

@@ -1,0 +1,466 @@
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/24/21 09:00:26 Page 1
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+C o m p i l a t i o n
+
+
+      -- Blending 1.0
+   4   
+   5   
+   6  Scalar
+   7      QD            'Demanda total a suplir (Tm)'     /30000/
+   8      Qmin          'Cantidad minima a comprar'       /500/
+   9      Qmax          'Cantidad maxima a comprar'       /10000/
+  10      densidad_max  'Limite maximo Densidad'          /1.2/
+  11      sulfuro_max   'Limite maximo Sulfuro (Azufre)'  /0.5/;
+  12   
+  13  Set
+  14      C             'componentes'                     / C1,C2,C3  /
+  15      T             'tanques '                        / T1*T3  /;
+  16   
+  17  Parameter
+  18      Price_c(C)    'Precios netos componentes $/Tm'  / C1 470, C2 400, C3 460 /
+  19      Price_s(T)    'Precios netos Stocks $/Tm'       / T1 450, T2 430, T3 400 /
+  20   
+  21      sulfuro_c(C)  'Sulfuro componentes'             / C1 0.47, C2 0.37, C3 0.45 /
+  22      sulfuro_s(T)  'Sulfuro stock'                   / T1 0.45, T2 0.44, T3 0.48 /
+  23   
+  24      densidad_c(C) 'Densidad Componentes'            / C1 0.88, C2 0.90, C3 0.87 /
+  25      densidad_s(T) 'Densidad Tanques'                / T1 0.89, T2 0.9, T3 0.88 /
+  26   
+  27      stock(T)      'Stock producto final'            /T1 1450, T2 1350, T3 1260/;
+  28   
+  29  Positive Variable
+  30      Qc(C)         'Cantidad de componente a comprar'
+  31      Qs(T)         'Cantidad de stock a usar';
+  32   
+  33  Positive Variable
+  34      QT            'Cantidad total a producir'
+  35      densidad      'Densidad producto final'
+  36      sulfuro       'Sulfuro (Azufre) producto final';
+  37   
+  38  Binary Variable
+  39      yc(C)         'Variable binaria componentes'
+  40      ys(T)         'Variable binaria tanques';
+  41   
+  42  Variable
+  43      CT             ' coste total';
+  44   
+  45  Equations
+  46      total_cost    'Ecuacion coste total'
+  47      demanda       'Ecuación de produccion igual o superior a demanda'
+  48      Q_min_comp(C) 'Cantidad minima de compra de componente'
+  49      Q_max_comp(C) 'Cantidad maxima de compra de componente'
+  50      sulfuro_final
+  51      densidad_final
+  52      total_quantity
+  53      limite_sulfuro
+  54      limite_densidad
+  55      limite_stock(T);
+  56   
+  57  total_cost..                CT =e= sum(C, Qc(C)*Price_c(C)) + sum(T, Qs(T)*Price_s(T)) ;
+  58   
+  59  total_quantity..            QT =e= sum(C, Qc(C)) + sum(T, Qs(T)) ;
+  60   
+  61  demanda..                   QT =g= QD ;
+  62   
+  63  Q_min_comp(C)..             Qc(C) - yc(C)*Qmin =g=0 ;
+  64   
+  65  Q_max_comp(C)..             Qc(C) - yc(C)*Qmax =l=0;
+  66   
+  67  limite_stock(T)..           Qs(T) - ys(T)*stock(T) =l= 0 ;
+  68   
+  69  sulfuro_final..             sulfuro =e= 1/QT* (sum(C, sulfuro_c(C) * Qc(C) ) + sum(T, sulfuro_s(T) * Qs(T) )) ;
+  70   
+  71  densidad_final..            densidad =e= 1/QT* (sum(C, densidad_c(C) * Qc(C) ) + sum(T, densidad_s(T) * Qs(T) )) ;
+  72   
+  73  limite_sulfuro..            sulfuro =l= sulfuro_max;
+  74   
+  75  limite_densidad..           densidad =l= densidad_max;
+  76   
+  77  Qc.l(C) = 1;
+  78  Qs.l(T) = 1;
+  79  QT.l = 1;
+  80  yc.l(C) = 1;
+  81  ys.l(T) = 1;
+  82   
+  83  Model blending / all /;
+  84   
+  85  *option minlp=BONMIN;
+  86   
+  87  option minlp=LOCALSOLVER;
+  88   
+  89  OPTION SYSOUT=ON;
+  90   
+  91  solve blending using minlp minimizing CT;
+  92   
+  93   
+  94   
+  95   
+  96   
+  97   
+
+
+COMPILATION TIME     =        0.004 SECONDS      3 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/24/21 09:00:26 Page 2
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Equation Listing    SOLVE blending Using MINLP From line 91
+
+
+---- total_cost  =E=  Ecuacion coste total
+
+total_cost..  - 470*Qc(C1) - 400*Qc(C2) - 460*Qc(C3) - 450*Qs(T1) - 430*Qs(T2) - 400*Qs(T3) + CT =E= 0 ; (LHS = -2610, INFES = 2610 ****)
+     
+
+---- demanda  =G=  Ecuación de produccion igual o superior a demanda
+
+demanda..  QT =G= 30000 ; (LHS = 1, INFES = 29999 ****)
+     
+
+---- Q_min_comp  =G=  Cantidad minima de compra de componente
+
+Q_min_comp(C1)..  Qc(C1) - 500*yc(C1) =G= 0 ; (LHS = -499, INFES = 499 ****)
+     
+Q_min_comp(C2)..  Qc(C2) - 500*yc(C2) =G= 0 ; (LHS = -499, INFES = 499 ****)
+     
+Q_min_comp(C3)..  Qc(C3) - 500*yc(C3) =G= 0 ; (LHS = -499, INFES = 499 ****)
+     
+
+---- Q_max_comp  =L=  Cantidad maxima de compra de componente
+
+Q_max_comp(C1)..  Qc(C1) - 10000*yc(C1) =L= 0 ; (LHS = -9999)
+     
+Q_max_comp(C2)..  Qc(C2) - 10000*yc(C2) =L= 0 ; (LHS = -9999)
+     
+Q_max_comp(C3)..  Qc(C3) - 10000*yc(C3) =L= 0 ; (LHS = -9999)
+     
+
+---- sulfuro_final  =E=  
+
+sulfuro_final..  - (0.47)*Qc(C1) - (0.37)*Qc(C2) - (0.45)*Qc(C3) - (0.45)*Qs(T1) - (0.44)*Qs(T2) - (0.48)*Qs(T3) + (2.66)*QT + sulfuro =E= 0 ; (LHS = -2.66, INFES = 2.66 ****)
+     
+
+---- densidad_final  =E=  
+
+densidad_final..  - (0.88)*Qc(C1) - (0.9)*Qc(C2) - (0.87)*Qc(C3) - (0.89)*Qs(T1) - (0.9)*Qs(T2) - (0.88)*Qs(T3) + (5.32)*QT + densidad =E= 0 ; (LHS = -5.32, INFES = 5.32 ****)
+     
+
+---- total_quantity  =E=  
+
+total_quantity..  - Qc(C1) - Qc(C2) - Qc(C3) - Qs(T1) - Qs(T2) - Qs(T3) + QT =E= 0 ; (LHS = -5, INFES = 5 ****)
+     
+
+---- limite_sulfuro  =L=  
+
+limite_sulfuro..  sulfuro =L= 0.5 ; (LHS = 0)
+     
+
+---- limite_densidad  =L=  
+
+limite_densidad..  densidad =L= 1.2 ; (LHS = 0)
+     
+
+---- limite_stock  =L=  
+
+limite_stock(T1)..  Qs(T1) - 1450*ys(T1) =L= 0 ; (LHS = -1449)
+     
+limite_stock(T2)..  Qs(T2) - 1350*ys(T2) =L= 0 ; (LHS = -1349)
+     
+limite_stock(T3)..  Qs(T3) - 1260*ys(T3) =L= 0 ; (LHS = -1259)
+     
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/24/21 09:00:26 Page 3
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Column Listing      SOLVE blending Using MINLP From line 91
+
+
+---- Qc  Cantidad de componente a comprar
+
+Qc(C1)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+     -470       total_cost
+        1       Q_min_comp(C1)
+        1       Q_max_comp(C1)
+      (-0.47)   sulfuro_final
+      (-0.88)   densidad_final
+       -1       total_quantity
+
+Qc(C2)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+     -400       total_cost
+        1       Q_min_comp(C2)
+        1       Q_max_comp(C2)
+      (-0.37)   sulfuro_final
+      (-0.9)    densidad_final
+       -1       total_quantity
+
+Qc(C3)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+     -460       total_cost
+        1       Q_min_comp(C3)
+        1       Q_max_comp(C3)
+      (-0.45)   sulfuro_final
+      (-0.87)   densidad_final
+       -1       total_quantity
+
+
+---- Qs  Cantidad de stock a usar
+
+Qs(T1)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+     -450       total_cost
+      (-0.45)   sulfuro_final
+      (-0.89)   densidad_final
+       -1       total_quantity
+        1       limite_stock(T1)
+
+Qs(T2)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+     -430       total_cost
+      (-0.44)   sulfuro_final
+      (-0.9)    densidad_final
+       -1       total_quantity
+        1       limite_stock(T2)
+
+Qs(T3)
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+     -400       total_cost
+      (-0.48)   sulfuro_final
+      (-0.88)   densidad_final
+       -1       total_quantity
+        1       limite_stock(T3)
+
+
+---- QT  Cantidad total a producir
+
+QT
+                (.LO, .L, .UP, .M = 0, 1, +INF, 0)
+        1       demanda
+       (2.66)   sulfuro_final
+       (5.32)   densidad_final
+        1       total_quantity
+
+
+---- densidad  Densidad producto final
+
+densidad
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       densidad_final
+        1       limite_densidad
+
+
+---- sulfuro  Sulfuro (Azufre) producto final
+
+sulfuro
+                (.LO, .L, .UP, .M = 0, 0, +INF, 0)
+        1       sulfuro_final
+        1       limite_sulfuro
+
+
+---- yc  Variable binaria componentes
+
+yc(C1)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+     -500       Q_min_comp(C1)
+   -10000       Q_max_comp(C1)
+
+yc(C2)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+     -500       Q_min_comp(C2)
+   -10000       Q_max_comp(C2)
+
+yc(C3)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+     -500       Q_min_comp(C3)
+   -10000       Q_max_comp(C3)
+
+
+---- ys  Variable binaria tanques
+
+ys(T1)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+    -1450       limite_stock(T1)
+
+ys(T2)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+    -1350       limite_stock(T2)
+
+ys(T3)
+                (.LO, .L, .UP, .M = 0, 1, 1, 0)
+    -1260       limite_stock(T3)
+
+
+---- CT   coste total
+
+CT
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       total_cost
+
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/24/21 09:00:26 Page 4
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Model Statistics    SOLVE blending Using MINLP From line 91
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS          10     SINGLE EQUATIONS           16
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES           16
+NON ZERO ELEMENTS            51     NON LINEAR N-Z             14
+CODE LENGTH                  38     CONSTANT POOL              25     DISCRETE VARIABLES          6
+
+
+GENERATION TIME      =        0.046 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/24/21 09:00:26 Page 5
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE blending Using MINLP From line 91
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   blending            OBJECTIVE  CT
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  LOCALSOLVER         FROM LINE  91
+
+**** SOLVER STATUS     1 Normal Completion         
+**** MODEL STATUS      8 Integer Solution          
+**** OBJECTIVE VALUE         13128800.0000
+
+ RESOURCE USAGE, LIMIT          0.000 10000000000.000
+ ITERATION COUNT, LIMIT      2717    2147483647
+ EVALUATION ERRORS             NA             0
+
+LocalSolver      35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+*** This solver runs with a demo license. No commercial use.
+
+LocalSolver 10.0 (MacOS64, build 20210330)
+Warning: Decreased the upper bound for some continuous variables to 1e10.
+
+                           LOWER          LEVEL          UPPER
+
+---- EQU total_cost          .              .              .          
+---- EQU demanda        30000.0000     30000.0000        +INF         
+
+  total_cost  Ecuacion coste total
+  demanda  Ecuación de produccion igual o superior a demanda
+
+---- EQU Q_min_comp  Cantidad minima de compra de componente
+
+          LOWER          LEVEL          UPPER
+
+C1          .          5440.0000        +INF         
+C2          .          9500.0000        +INF         
+C3          .          9500.0000        +INF         
+
+---- EQU Q_max_comp  Cantidad maxima de compra de componente
+
+          LOWER          LEVEL          UPPER
+
+C1        -INF        -4060.0000          .          
+C2        -INF             .              .          
+C3        -INF             .              .          
+
+                           LOWER          LEVEL          UPPER
+
+---- EQU sulfuro_f~          .              .              .          
+---- EQU densidad_~          .              .              .          
+---- EQU total_qua~          .              .              .          
+---- EQU limite_su~        -INF            0.4281         0.5000      
+---- EQU limite_de~        -INF            0.8847         1.2000      
+
+---- EQU limite_stock  
+
+          LOWER          LEVEL          UPPER
+
+T1        -INF             .              .          
+T2        -INF             .              .          
+T3        -INF             .              .          
+
+---- VAR Qc  Cantidad de componente a comprar
+
+          LOWER          LEVEL          UPPER
+
+C1          .          5940.0000        +INF         
+C2          .         10000.0000        +INF         
+C3          .         10000.0000        +INF         
+
+---- VAR Qs  Cantidad de stock a usar
+
+          LOWER          LEVEL          UPPER
+
+T1          .          1450.0000        +INF         
+T2          .          1350.0000        +INF         
+T3          .          1260.0000        +INF         
+
+                           LOWER          LEVEL          UPPER
+
+---- VAR QT                  .         30000.0000        +INF         
+---- VAR densidad            .             0.8847        +INF         
+---- VAR sulfuro             .             0.4281        +INF         
+
+  QT  Cantidad total a producir
+  densidad  Densidad producto final
+  sulfuro  Sulfuro (Azufre) producto final
+
+---- VAR yc  Variable binaria componentes
+
+          LOWER          LEVEL          UPPER
+
+C1          .             1.0000         1.0000      
+C2          .             1.0000         1.0000      
+C3          .             1.0000         1.0000      
+
+---- VAR ys  Variable binaria tanques
+
+          LOWER          LEVEL          UPPER
+
+T1          .             1.0000         1.0000      
+T2          .             1.0000         1.0000      
+T3          .             1.0000         1.0000      
+
+                           LOWER          LEVEL          UPPER
+
+---- VAR CT                -INF      1.3128800E+7        +INF         
+
+  CT   coste total
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/24/21 09:00:26 Page 6
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE blending Using MINLP From line 91
+
+
+**** SOLVER STATUS FILE LISTED BELOW
+=C
+=CLocalSolver      35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+=0LocalSolver      35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+=C*** This solver runs with a demo license. No commercial use.
+=C
+=CLocalSolver 10.0 (MacOS64, build 20210330)
+Copyright (C) 2020 LocalSolver. All rights reserved.
+See LocalSolver Terms and Conditions for details.
+=1
+=2
+Searching for equations that define variables... found 3
+=CWarning: Decreased the upper bound for some continuous variables to 1e10.
+
+Feasible solution found.
+Objective Value:  1.31288000e+07
+**** SOLVER STATUS FILE LISTED ABOVE
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/24/21 09:00:26 Page 7
+G e n e r a l   A l g e b r a i c   M o d e l i n g   S y s t e m
+Solution Report     SOLVE blending Using MINLP From line 91
+
+
+EXECUTION TIME       =        0.499 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+
+
+USER: GAMS Demo license for Jose Angel Rodriguez     G210527|0002CO-GEN
+      UC3M, Spain                                              DL042150
+
+
+**** FILE SUMMARY
+
+Input      /Users/joseangelvelasco/Google Drive/gams/blending/blending_v1.gms
+Output     /Users/joseangelvelasco/Google Drive/gams/blending/blending_v1.lst

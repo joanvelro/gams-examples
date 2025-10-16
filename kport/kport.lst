@@ -1,0 +1,613 @@
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:56:51 Page 1
+Product Portfolio Optimization (KPORT,SEQ=270)
+C o m p i l a t i o n
+
+
+   2   
+      This problem computes minimal cost solutions satisfying the
+      demand of pre-given product portfolios. It determines the number
+      and size of reactors and gives a schedule of how may batches of
+      each product run on each reactor. There are two scenarios
+      (s1 20 products. s2 40 products), add --scenario s2 as a GAMS
+      parameter to specify the second scenario.
+       
+      The global optimal reactor volumes are:
+      data set s1
+      vr.fx('r1') = 132.5; vr.fx('r2') = 250;
+       
+      data set s2
+      vr.fx('r1') = 20; vr.fx('r2') = 100; vr.fx('r3') = 250;
+       
+      Two formulations are presented, a compact MINLP formulations
+      and a linearized MIP formulation using special ordered sets.
+       
+      Problem sizes for data set s1
+       
+                              MINLP        MIP
+      variables                 102        548
+      equations                  28        418
+      Non-zeros                 190       1574
+      discrete variables         40        186
+       
+       
+      Kallrath, J. Exact Computation of Global Minima of a Nonconvex
+      Portfolio Optimization Problem. In Frontiers in Global Optimization.
+      Eds Floudas C A and Pardalos P M. Kluwer Academic Publishers,
+      Dortrecht, 2003.
+       
+      Keywords: mixed integer nonlinear programming, mixed integer linear programming,
+                portfolio optimization, special ordered sets, global optimization,
+                concave objective functions, chemical engineering
+  39   
+  41   
+  42  Set
+  43     s      'scenario' / s1,s2  /
+  44     rR     'reactors' / R1*R3  /
+  45     pP     'products' / L1*L19 /
+  46     r(rR)  'reactors considered in scenario'
+  47     p(pP)  'products considered in scenario';
+  48   
+  49  Table RData(rR,s,*) 'reactor data'
+  50          s1.VMIN  s1.VMAX  s2.VMIN  s2.VMAX
+  51     R1    102.14      250     20         50
+  52     R2    176.07      250     52.5      250
+  53     R3                      151.25      250;
+  54   
+  55  Table PData(pP,s,*) 'product data'
+  56           s1.Dem  s1.PTime  s2.Dem  s2.Ptime
+  57     L1      2600         6    2600         6
+  58     L2      2300         6    2300         6
+  59     L3      1700         6     450         6
+  60     L4       530         6    1200         6
+  61     L5       530         6     560         6
+  62     L6       280         6     530         6
+  63     L7       250         6     530         6
+  64     L8       230         6     140         6
+  65     L9       160         6     110         6
+  66     L10       90         6     110         6;
+  67   
+  68  Parameter
+  69     VMIN(rR)     'volume flow of products in m^3 per week'
+  70     VMAX(rR)     'volume flow of products in m^3 per week'
+  71     DEMAND(pP)   'volume flow of products in m^3 per week'
+  72     PRODTIME(pP) 'production time in hours per batch';
+  73   
+  74  Scalar
+  75     WHRS 'hours in a week'                                / 168  /
+  76     CSTI 'in kEuro depreciation per m^3 reactor and week' / 0.97 /
+  77     CSTF 'in kEuro per week and reactor'                  / 2.45 /
+  78     ESF  'economies of scale factor'                      / 0.5  /;
+  79   
+  81  VMIN(rR)     = RDATA(rR,'s1','VMIN');
+  82  VMAX(rR)     = RDATA(rR,'s1','VMAX');
+  83  DEMAND(pP)   = PDATA(pP,'s1','Dem');
+  84  PRODTIME(pP) = PDATA(pP,'s1','PTime');
+  85   
+  86  * determine scenario sets
+  87  r(rR) = VMAX(rR)   > 0;
+  88  p(pP) = DEMAND(pP) > 0;
+  89   
+  90  * definition of compact MINLP model
+  91  Variable
+  92     cTotal    'total  costs'
+  93     cInvest   'invest cost'
+  94     cFixed    'fix    costs'
+  95     f(rR,pP)  'utilization rate'
+  96     vR(rR)    'reactor volume in m^3'
+  97     pS(pP)    'surplus production'
+  98     bvr(rR)   'indicating whether reactor r is active'
+  99     nB(rR,pP) 'number of batches of product p in reactor r';
+ 100   
+ 101  Positive Variable f, vR, pS;
+ 102  Integer  Variable nB;
+ 103  Binary   Variable bvr;
+ 104   
+ 105  Equation
+ 106     DEFcT    'total costs'
+ 107     DEFcF    'fix costs'
+ 108     DEFcI    'invest cost'
+ 109     TR(rR)   'production time of reactor r'
+ 110     SPP(pP)  'compute surplus production p'
+ 111     RVUB(rR) 'maximal volume of reactor r'
+ 112     RVLB(rR) 'minimal volume reactor r';
+ 113   
+ 114  * define the total cost
+ 115  DEFcT..   cTotal  =e= cFixed + cInvest;
+ 116   
+ 117  DEFcF..   cFixed  =e= sum(r, CSTF*bvr(r));
+ 118   
+ 119  DEFcI..   cInvest =e= sum(r, CSTI**ESF*vR(r)**ESF);
+ 120   
+ 121  * limit the total production time of reactor r
+ 122  TR(r)..   sum(p, PRODTIME(p)*nB(r,p)) =l= WHRS*bvr(r);
+ 123   
+ 124  * compute the surplus production
+ 125  SPP(p)..  pS(p) =e= sum(r, nB(r,p)*f(r,p)*vR(r))/DEMAND(p) - 1;
+ 126   
+ 127  * lower and upper bounds on reactor volume
+ 128  RVLB(r).. vR(r) =g= VMIN(r)*bvr(r);
+ 129   
+ 130  RVUB(r).. vR(r) =l= VMAX(r)*bvr(r);
+ 131   
+ 132  Model portfolioMINLP / DEFcT, DEFcF, DEFcI, TR, SPP, RVLB, RVUB /;
+ 133   
+ 134  f.lo(r,p) = 0.4; f.up(r,p) = 1;  // bounds on the utilization rates
+ 135  pS.lo(p)  =   0; pS.up(p)  = 1;  // bounds on the surplus production
+ 136   
+ 137  * bounds on the number of batches
+ 138  nB.lo(r,p) = 0;
+ 139  nB.up(r,p) = min(WHRS/PRODTIME(p),floor(2*DEMAND(p)/(VMIN(r)*f.lo(r,p))));
+ 140  nB.up(r,p)$(2*DEMAND(p) < f.lo(r,p)*VMIN(r)) = 0;
+ 141   
+ 142  vR.l(rR) = 99;
+ 143  vR.lo(r) = VMIN(r);
+ 144   
+ 145   
+ 146  option minlp=LOCALSOLVER;
+ 147   
+ 148  solve portfolioMINLP using minlp minimizing cTotal;
+ 149   
+ 150  * additional variables and equations to define the MIP formulation
+ 151  * first we need to linearize the product terms:
+ 152  *
+ 153  *
+ 154  *
+ 155  *
+ 156  *
+ 157  Set
+ 158     i            'dyadic represenation set'       / 0*10 /
+ 159     j            'discretization points for SOS2' / 0*10 /
+ 160     rpi(rR,pP,i) 'i required for representing np';
+ 161   
+ 162  Parameter
+ 163     vRj(rR,j)    'x part of SOS2 construct'
+ 164     ESFvRj(rR,j) 'y part of SOS2 construct';
+ 165   
+ 166  Positive Variable
+ 167     pT(rR,pP)    'number of batches x reactor volume in m^3'
+ 168     pT2(rR,pP,i) 'same for in dyadic representation'
+ 169     ESFvR(rR)    'economies of scale for vR';
+ 170   
+ 171  Binary Variable
+ 172     nBx(rR,pP,i) 'dyadic represenation of nB';
+ 173   
+ 174  SOS2 Variable
+ 175     lambda(rR,j) 'approximation of economies of scale function';
+ 176   
+ 177  Equation
+ 178     CNP(rR,pP)     'compute the nonlinear products nB(rp)*f(rp)*vR(r)'
+ 179     SPPx(pP)       'compute surplus production p'
+ 180     CNPl0(rR,pP)   'linearized version of CNP'
+ 181     CNPl1(rR,pP)   'linearized version of CNP'
+ 182     CNPl2(rR,pP,i) 'linearized version of CNP'
+ 183     CNPl3(rR,pP,i) 'linearized version of CNP'
+ 184     CNPl4(rR,pP,i) 'linearized version of CNP'
+ 185     DEFSOSx(rR)    'SOS2 x construct'
+ 186     DEFSOSy(rR)    'SOS2 y construct'
+ 187     DEFSOSone(rR)  'SOS2 sum construct'
+ 188     DEFcIlp        'linearized version of DEFcI';
+ 189   
+ 190  * new surplus production equation
+ 191  SPPx(p)..   pS(p)   =e= sum(r, pT(r,p))/DEMAND(p) - 1;
+ 192   
+ 193  * computes batches x volume
+ 194  CNP(r,p)..  pT(r,p) =e= nB(r,p)*f(r,p)*vR(r);
+ 195   
+ 196  * Linearized version of CNP
+ 197  CNPl0(r,p)..        pT(r,p)  =e= sum(rpi(r,p,i),2**(ord(i) - 1)*pT2(rpi));
+ 198   
+ 199  CNPl1(r,p)..        nB(r,p)  =e= sum(rpi(r,p,i),2**(ord(i) - 1)*nBx(rpi));
+ 200   
+ 201  CNPl2(rpi(r,p,i)).. pT2(rpi) =l= VMAX(r)*nBx(rpi);
+ 202   
+ 203  CNPl3(rpi(r,p,i)).. pT2(rpi) =l= vR(r);
+ 204   
+ 205  CNPl4(rpi(r,p,i)).. pT2(rpi) =g= f.lo(r,p)*(vR(r) - VMAX(r)*(1 - nbx(rpi)));
+ 206   
+ 207  * SOS2 approximation of economies of scale function
+ 208  DEFSOSx(r)..   vR(r)    =e= sum(j, vRj(r,j)*lambda(r,j));
+ 209   
+ 210  DEFSOSy(r)..   ESFvR(r) =e= sum(j, ESFvRj(r,j)*lambda(r,j));
+ 211   
+ 212  DEFSOSone(r).. sum(j, lambda(r,j)) =e= 1;
+ 213   
+ 214  DEFcIlp..      cInvest =e= sum(r, CSTI**ESF*ESFvR(r));
+ 215   
+ 216  rpi(r,p,i)  = ord(i) <= ceil(log(max(1,nB.up(r,p)))/log(2)) + 1$nB.up(r,p);
+ 217  vRj(r,j)    = (VMAX(r) - VMIN(r))*(ord(j) - 1)/(card(j) - 1) + VMIN(r);
+ 218  ESFvRj(r,j) = vRj(r,j)**ESF;
+ 219   
+ 220  Model PortfolioMIP / TR,      SPPx,  RVLB,    RVUB,    DEFcF
+ 221                       DEFcIlp, DEFcT, CNPl0,   CNPl1,   CNPl2
+ 222                       CNPl3,   CNPl4, DEFSOSx, DEFSOSy, DEFSOSone /;
+ 223   
+ 224  portfolioMIP.optCr = .05;
+ 225   
+ 226  option mip=LOCALSOLVER;
+ 227   
+ 228  *solve portfolioMIP using mip minimizing cTotal;
+
+
+COMPILATION TIME     =        0.002 SECONDS      3 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:56:51 Page 2
+Product Portfolio Optimization (KPORT,SEQ=270)
+Equation Listing    SOLVE portfolioMINLP Using MINLP From line 148
+
+
+---- DEFcT  =E=  total costs
+
+DEFcT..  cTotal - cInvest - cFixed =E= 0 ; (LHS = 0)
+     
+
+---- DEFcF  =E=  fix costs
+
+DEFcF..  cFixed - 2.45*bvr(R1) - 2.45*bvr(R2) =E= 0 ; (LHS = 0)
+     
+
+---- DEFcI  =E=  invest cost
+
+DEFcI..  cInvest - (0.0487256840393122)*vR(R1) - (0.0371119000059783)*vR(R2) =E= 0 ; (LHS = -23.0222672036559, INFES = 23.0222672036559 ****)
+     
+
+---- TR  =L=  production time of reactor r
+
+TR(R1)..  - 168*bvr(R1) + 6*nB(R1,L1) + 6*nB(R1,L2) + 6*nB(R1,L3) + 6*nB(R1,L4) + 6*nB(R1,L5) + 6*nB(R1,L6) + 6*nB(R1,L7) + 6*nB(R1,L8) + 6*nB(R1,L9) + 6*nB(R1,L10) =L= 0 ; (LHS = 0)
+     
+TR(R2)..  - 168*bvr(R2) + 6*nB(R2,L1) + 6*nB(R2,L2) + 6*nB(R2,L3) + 6*nB(R2,L4) + 6*nB(R2,L5) + 6*nB(R2,L6) + 6*nB(R2,L7) + 6*nB(R2,L8) + 6*nB(R2,L9) + 6*nB(R2,L10) =L= 0 ; (LHS = 0)
+     
+
+---- SPP  =E=  compute surplus production p
+
+SPP(L1)..  (0)*f(R1,L1) + (0)*f(R2,L1) + (0)*vR(R1) + (0)*vR(R2) + pS(L1) - (0.0157138461538462)*nB(R1,L1) - (0.0270876923076923)*nB(R2,L1) =E= -1 ; (LHS = 0, INFES = 1 ****)
+     
+SPP(L2)..  (0)*f(R1,L2) + (0)*f(R2,L2) + (0)*vR(R1) + (0)*vR(R2) + pS(L2) - (0.0177634782608696)*nB(R1,L2) - (0.0306208695652174)*nB(R2,L2) =E= -1 ; (LHS = 0, INFES = 1 ****)
+     
+SPP(L3)..  (0)*f(R1,L3) + (0)*f(R2,L3) + (0)*vR(R1) + (0)*vR(R2) + pS(L3) - (0.0240329411764706)*nB(R1,L3) - (0.0414282352941176)*nB(R2,L3) =E= -1 ; (LHS = 0, INFES = 1 ****)
+     
+REMAINING 7 ENTRIES SKIPPED
+
+
+---- RVLB  =G=  minimal volume reactor r
+
+RVLB(R1)..  vR(R1) - 102.14*bvr(R1) =G= 0 ; (LHS = 102.14)
+     
+RVLB(R2)..  vR(R2) - 176.07*bvr(R2) =G= 0 ; (LHS = 176.07)
+     
+
+---- RVUB  =L=  maximal volume of reactor r
+
+RVUB(R1)..  vR(R1) - 250*bvr(R1) =L= 0 ; (LHS = 102.14, INFES = 102.14 ****)
+     
+RVUB(R2)..  vR(R2) - 250*bvr(R2) =L= 0 ; (LHS = 176.07, INFES = 176.07 ****)
+     
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:56:51 Page 3
+Product Portfolio Optimization (KPORT,SEQ=270)
+Column Listing      SOLVE portfolioMINLP Using MINLP From line 148
+
+
+---- cTotal  total  costs
+
+cTotal
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+        1       DEFcT
+
+
+---- cInvest  invest cost
+
+cInvest
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       DEFcT
+        1       DEFcI
+
+
+---- cFixed  fix    costs
+
+cFixed
+                (.LO, .L, .UP, .M = -INF, 0, +INF, 0)
+       -1       DEFcT
+        1       DEFcF
+
+
+---- f  utilization rate
+
+f(R1,L1)
+                (.LO, .L, .UP, .M = 0.4, 0.4, 1, 0)
+       (0)      SPP(L1)
+        0       (OLD LEVEL ****)
+
+f(R1,L2)
+                (.LO, .L, .UP, .M = 0.4, 0.4, 1, 0)
+       (0)      SPP(L2)
+        0       (OLD LEVEL ****)
+
+f(R1,L3)
+                (.LO, .L, .UP, .M = 0.4, 0.4, 1, 0)
+       (0)      SPP(L3)
+        0       (OLD LEVEL ****)
+
+REMAINING 17 ENTRIES SKIPPED
+
+---- vR  reactor volume in m^3
+
+vR(R1)
+                (.LO, .L, .UP, .M = 102.14, 102.14, +INF, 0)
+      (-0.0487) DEFcI
+       (0)      SPP(L1)
+       (0)      SPP(L2)
+       (0)      SPP(L3)
+       (0)      SPP(L4)
+       (0)      SPP(L5)
+       (0)      SPP(L6)
+       (0)      SPP(L7)
+       (0)      SPP(L8)
+       (0)      SPP(L9)
+       (0)      SPP(L10)
+        1       RVLB(R1)
+        1       RVUB(R1)
+       99       (OLD LEVEL ****)
+
+vR(R2)
+                (.LO, .L, .UP, .M = 176.07, 176.07, +INF, 0)
+      (-0.0371) DEFcI
+       (0)      SPP(L1)
+       (0)      SPP(L2)
+       (0)      SPP(L3)
+       (0)      SPP(L4)
+       (0)      SPP(L5)
+       (0)      SPP(L6)
+       (0)      SPP(L7)
+       (0)      SPP(L8)
+       (0)      SPP(L9)
+       (0)      SPP(L10)
+        1       RVLB(R2)
+        1       RVUB(R2)
+       99       (OLD LEVEL ****)
+
+
+---- pS  surplus production
+
+pS(L1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+        1       SPP(L1)
+
+pS(L2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+        1       SPP(L2)
+
+pS(L3)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+        1       SPP(L3)
+
+REMAINING 7 ENTRIES SKIPPED
+
+---- bvr  indicating whether reactor r is active
+
+bvr(R1)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+       -2.45    DEFcF
+     -168       TR(R1)
+     -102.14    RVLB(R1)
+     -250       RVUB(R1)
+
+bvr(R2)
+                (.LO, .L, .UP, .M = 0, 0, 1, 0)
+       -2.45    DEFcF
+     -168       TR(R2)
+     -176.07    RVLB(R2)
+     -250       RVUB(R2)
+
+
+---- nB  number of batches of product p in reactor r
+
+nB(R1,L1)
+                (.LO, .L, .UP, .M = 0, 0, 28, 0)
+        6       TR(R1)
+      (-0.0157) SPP(L1)
+
+nB(R1,L2)
+                (.LO, .L, .UP, .M = 0, 0, 28, 0)
+        6       TR(R1)
+      (-0.0178) SPP(L2)
+
+nB(R1,L3)
+                (.LO, .L, .UP, .M = 0, 0, 28, 0)
+        6       TR(R1)
+      (-0.024)  SPP(L3)
+
+REMAINING 17 ENTRIES SKIPPED
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:56:51 Page 4
+Product Portfolio Optimization (KPORT,SEQ=270)
+Model Statistics    SOLVE portfolioMINLP Using MINLP From line 148
+
+
+MODEL STATISTICS
+
+BLOCKS OF EQUATIONS           7     SINGLE EQUATIONS           19
+BLOCKS OF VARIABLES           8     SINGLE VARIABLES           57  22 projected
+NON ZERO ELEMENTS           109     NON LINEAR N-Z             62
+CODE LENGTH                 121     CONSTANT POOL              26     DISCRETE VARIABLES         22
+
+
+GENERATION TIME      =        0.006 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:56:51 Page 5
+Product Portfolio Optimization (KPORT,SEQ=270)
+Solution Report     SOLVE portfolioMINLP Using MINLP From line 148
+
+
+               S O L V E      S U M M A R Y
+
+     MODEL   portfolioMINLP      OBJECTIVE  cTotal
+     TYPE    MINLP               DIRECTION  MINIMIZE
+     SOLVER  LOCALSOLVER         FROM LINE  148
+
+**** SOLVER STATUS     8 User Interrupt            
+**** MODEL STATUS      8 Integer Solution          
+**** OBJECTIVE VALUE               29.3508
+
+ RESOURCE USAGE, LIMIT        158.000 10000000000.000
+ ITERATION COUNT, LIMIT  23510000    2147483647
+ EVALUATION ERRORS             NA             0
+
+LocalSolver      35.1.0 r82a9585 Released Apr 29, 2021 DEG x86 64bit/Mac OS X 
+*** This solver runs with a demo license. No commercial use.
+
+LocalSolver 10.0 (MacOS64, build 20210330)
+Warning: Decreased the upper bound for some continuous variables to 1e10.
+
+                           LOWER          LEVEL          UPPER
+
+---- EQU DEFcT               .              .              .          
+---- EQU DEFcF               .              .              .          
+---- EQU DEFcI               .              .              .          
+
+  DEFcT  total costs
+  DEFcF  fix costs
+  DEFcI  invest cost
+
+---- EQU TR  production time of reactor r
+
+          LOWER          LEVEL          UPPER
+
+R1        -INF             .              .          
+R2        -INF             .              .          
+
+---- EQU SPP  compute surplus production p
+
+           LOWER          LEVEL          UPPER
+
+L1         -1.0000        -1.0000        -1.0000      
+L2         -1.0000        -1.0000        -1.0000      
+L3         -1.0000        -1.0000        -1.0000      
+L4         -1.0000        -1.0000        -1.0000      
+L5         -1.0000        -1.0000        -1.0000      
+L6         -1.0000        -1.0000        -1.0000      
+L7         -1.0000        -1.0000        -1.0000      
+L8         -1.0000        -1.0000        -1.0000      
+L9         -1.0000        -1.0000        -1.0000      
+L10        -1.0000        -1.0000        -1.0000      
+
+---- EQU RVLB  minimal volume reactor r
+
+          LOWER          LEVEL          UPPER
+
+R1          .              .            +INF         
+R2          .            40.5967        +INF         
+
+---- EQU RVUB  maximal volume of reactor r
+
+          LOWER          LEVEL          UPPER
+
+R1        -INF         -147.8600          .          
+R2        -INF          -33.3333          .          
+
+                           LOWER          LEVEL          UPPER
+
+---- VAR cTotal            -INF           29.3508        +INF         
+---- VAR cInvest           -INF           24.4508        +INF         
+---- VAR cFixed            -INF            4.9000        +INF         
+
+  cTotal  total  costs
+  cInvest  invest cost
+  cFixed  fix    costs
+
+---- VAR f  utilization rate
+
+              LOWER          LEVEL          UPPER
+
+R1.L1          0.4000         0.4000         1.0000      
+R1.L2          0.4000         1.0000         1.0000      
+R1.L3          0.4000         1.0000         1.0000      
+R1.L4          0.4000         1.0000         1.0000      
+R1.L5          0.4000         1.0000         1.0000      
+R1.L6          0.4000         0.9138         1.0000      
+R1.L7          0.4000         0.4000         1.0000      
+R1.L8          0.4000         0.7506         1.0000      
+R1.L9          0.4000         1.0000         1.0000      
+R1.L10         0.4000         0.8811         1.0000      
+R2.L1          0.4000         1.0000         1.0000      
+R2.L2          0.4000         0.9917         1.0000      
+R2.L3          0.4000         0.9934         1.0000      
+R2.L4          0.4000         0.9874         1.0000      
+R2.L5          0.4000         0.9874         1.0000      
+R2.L6          0.4000         0.4000         1.0000      
+R2.L7          0.4000         1.0000         1.0000      
+R2.L8          0.4000         0.4000         1.0000      
+R2.L9          0.4000         0.4000         1.0000      
+R2.L10         0.4000         0.4000         1.0000      
+
+---- VAR vR  reactor volume in m^3
+
+          LOWER          LEVEL          UPPER
+
+R1       102.1400       102.1400        +INF         
+R2       176.0700       216.6667        +INF         
+
+---- VAR pS  surplus production
+
+           LOWER          LEVEL          UPPER
+
+L1           .              .             1.0000      
+L2           .              .             1.0000      
+L3           .              .             1.0000      
+L4           .              .             1.0000      
+L5           .              .             1.0000      
+L6           .              .             1.0000      
+L7           .             0.0301         1.0000      
+L8           .              .             1.0000      
+L9           .             0.2768         1.0000      
+L10          .              .             1.0000      
+
+---- VAR bvr  indicating whether reactor r is active
+
+          LOWER          LEVEL          UPPER
+
+R1          .             1.0000         1.0000      
+R2          .             1.0000         1.0000      
+
+---- VAR nB  number of batches of product p in reactor r
+
+              LOWER          LEVEL          UPPER
+
+R1.L1           .              .            28.0000      
+R1.L2           .            12.0000        28.0000      
+R1.L3           .             4.0000        28.0000      
+R1.L4           .             1.0000        25.0000      
+R1.L5           .             1.0000        25.0000      
+R1.L6           .             3.0000        13.0000      
+R1.L7           .             1.0000        12.0000      
+R1.L8           .             3.0000        11.0000      
+R1.L9           .             2.0000         7.0000      
+R1.L10          .             1.0000         4.0000      
+R2.L1           .            12.0000        28.0000      
+R2.L2           .             5.0000        28.0000      
+R2.L3           .             6.0000        28.0000      
+R2.L4           .             2.0000        15.0000      
+R2.L5           .             2.0000        15.0000      
+R2.L6           .              .             7.0000      
+R2.L7           .             1.0000         7.0000      
+R2.L8           .              .             6.0000      
+R2.L9           .              .             4.0000      
+R2.L10          .              .             2.0000      
+
+
+**** REPORT SUMMARY :        0     NONOPT
+                             0 INFEASIBLE
+                             0  UNBOUNDED
+                             0     ERRORS
+                            11  PROJECTED
+GAMS 35.1.0  r82a9585 Released Apr 29, 2021 DEX-DEG x86 64bit/Mac OS X - 06/07/21 17:56:51 Page 6
+Product Portfolio Optimization (KPORT,SEQ=270)
+E x e c u t i o n
+
+
+EXECUTION TIME       =      158.476 SECONDS      4 MB  35.1.0 r82a9585 DEX-DEG
+
+
+USER: GAMS Demo license for Jose Angel Rodriguez     G210527|0002CO-GEN
+      UC3M, Spain                                              DL042150
+
+
+**** FILE SUMMARY
+
+Input      /Users/joseangelvelasco/Documents/GAMS/Studio/kport/kport.gms
+Output     /Users/joseangelvelasco/Documents/GAMS/Studio/kport/kport.lst

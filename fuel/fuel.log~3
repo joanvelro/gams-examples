@@ -1,0 +1,58 @@
+--- Job fuel.gms Start 06/07/21 18:30:51 35.1.0 r82a9585 DEX-DEG x86 64bit/Mac OS X
+--- Applying:
+    /Library/Frameworks/GAMS.framework/Versions/35/Resources/gmsprmun.txt
+--- GAMS Parameters defined
+    Input /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/fuel.gms
+    PageSize 0
+    ScrDir /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/225a/
+    SysDir /Library/Frameworks/GAMS.framework/Versions/35/Resources/
+    LogOption 3
+    ErrMsg 1
+    ErrorLog 99
+    IDE 1
+    LstTitleLeftAligned 1
+Licensee: GAMS Demo license for Jose Angel Rodriguez     G210527|0002CO-GEN
+          UC3M, Spain                                              DL042150
+          /Library/Frameworks/GAMS.framework/Versions/35/Resources/gamslice.txt
+          100328928@alumnos.uc3m.es, Jose Angel Rodriguez                  
+          Demo license for demonstration and instructional purposes only
+GAMS 35.1.0   Copyright (C) 1987-2021 GAMS Development. All rights reserved
+--- Starting compilation
+--- fuel.gms(26) 3 Mb 1 Error
+*** Error 338 in /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/fuel.gms
+    Unique element expected - symbol was not an element
+       and the following text will be skipped until a proper
+       symbol is found to recover. Remember that an UNQUOTED
+       element has to start with a letter or digit
+       followed by letters, digits, '+', '-' or '_'. The length
+       is limited to 63 characters. The following words are
+       reserved (starting symbols of a GAMS statement) and cannot
+       be used for UNQUOTED set elements:
+   
+          ABORT, ACRONYM(S), ALIAS, BINARY, DISPLAY, ELSE
+          EQUATION(S), EXECUTE, FILE(S), FOR, FREE, IF, INTEGER, LOOP
+          MODEL(S), NEGATIVE, OPTION(S), PARAMETER(S)
+          POSITIVE, PROCEDURE(S), PUT, PUTCLEAR, PUTCLOSE, PUTHD
+          PUTPAGE, PUTTL, SCALAR(S), SEMICONT, SET(S), SOS1, SOS2
+          TABLE, VARIABLE(S), WHILE
+   
+       QUOTED elements can contain any character. Single and
+       double quotes can be used (starting and ending quote have
+       to match).
+--- fuel.gms(27) 3 Mb 4 Errors
+*** Error   1 in /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/fuel.gms
+    Real number expected
+*** Error 334 in /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/fuel.gms
+    Illegal data following a data element - rest ignored
+*** Error 409 in /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/fuel.gms
+    Unrecognizable item - skip to find a new statement
+      looking for a ';' or a key word to get started again
+--- fuel.gms(60) 3 Mb 5 Errors
+*** Error 140 in /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/fuel.gms
+    Unknown symbol
+--- fuel.gms(93) 3 Mb 6 Errors
+*** Error 257 in /Users/joseangelvelasco/Documents/GAMS/Studio/fuel/fuel.gms
+    Solve statement not checked because of previous errors
+--- fuel.gms(93) 3 Mb 6 Errors
+*** Status: Compilation error(s)
+--- Job fuel.gms Stop 06/07/21 18:30:51 elapsed 0:00:00.010
